@@ -14,13 +14,9 @@
     <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_history"
                 android:icon="@drawable/ic_share_black_24dp"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_Rate"
-                android:icon="@drawable/ic_rate_review_black_24dp"
-                android:title="Rate" />
+                android:title="History" />
         </menu>
     </item>
 

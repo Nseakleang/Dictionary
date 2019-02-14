@@ -1,6 +1,9 @@
 package com.seakleang.dictionary;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,13 +16,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    TextView txtClose;
+    Dialog dialog;
     MenuItem menuLanguage;
     DictionaryFragment dictionaryFragment;
-//    BookmarkFragment bookmarkFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,19 +71,16 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main, menu);
         menuLanguage = menu.findItem(R.id.language);
         String id = StateLanguage.getSate(this, "language");
-        if (id != null)
-            onOptionsItemSelected(menu.findItem(Integer.parseInt(id)));
-        else
+        if (id == null) {
             onOptionsItemSelected(menu.findItem(R.id.en_kh));
-
+        }else {
+            onOptionsItemSelected(menu.findItem(Integer.parseInt(id)));
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         StateLanguage.saveState(this, "language", String.valueOf(id));
         //noinspection SimplifiableIfStatement
@@ -99,15 +102,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_bookmark){
-//            gotoFragment(bookmarkFragment, false);
             Intent intent = new Intent(this, BookmarkActivity.class);
             startActivity(intent);
-        }else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_Rate) {
-
+        }else if (id == R.id.nav_history){
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_help) {
-
+            showDialog();
         } else if (id == R.id.nav_about) {
 
         }
@@ -115,6 +116,20 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showDialog() {
+        dialog = new Dialog(this);
+        dialog.setContentView(R.layout.alertdialog_help);
+        txtClose = dialog.findViewById(R.id.txt_close);
+        txtClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 
     public void openFragment(Fragment fragment, int container){

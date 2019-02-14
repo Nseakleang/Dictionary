@@ -2,7 +2,6 @@ package com.seakleang.dictionary;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,9 +13,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.seakleang.dictionary.adapter.DictionaryAdapter;
+import com.seakleang.dictionary.data.dao.DictionaryDao;
+import com.seakleang.dictionary.data.database.AppDatabase;
+import com.seakleang.dictionary.entity.Dictionary;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class DictionaryFragment extends Fragment {
 
-//    FragmentListener listener;
+    AppDatabase appDatabase;
+    DictionaryDao dictionaryDao;
 
     public DictionaryFragment() {
         // Required empty public constructor
@@ -37,61 +45,21 @@ public class DictionaryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        Button btnGotoDetail = view.findViewById(R.id.btnGotoDetail);
-//        btnGotoDetail.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////                listener.onItemClick();
-//                Intent intent = new Intent(getActivity(), DetailActivity.class);
-//                intent.putExtra("Title", "Word");
-//                startActivity(intent);
-//            }
-//        });
 
         ListView listView = view.findViewById(R.id.listWord);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, getListOfWord());
+        appDatabase = AppDatabase.getFileDatabase(getActivity());
+        dictionaryDao = appDatabase.dictionaryDao();
+        DictionaryAdapter adapter = new DictionaryAdapter(getActivity(), getListOfWord());
+
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra("Word", getListOfWord()[position]);
+                intent.putExtra("id", position+1);
                 startActivity(intent);
             }
         });
-    }
-
-    String[] getListOfWord(){
-        String[] words = new String[]{
-                "a"
-                ,"abandon"
-                ,"abandoned"
-                ,"ability"
-                ,"able"
-                ,"about"
-                ,"above"
-                ,"abroad"
-                ,"absence"
-                ,"absent"
-                ,"absolute"
-                ,"absolutely"
-                ,"absorb"
-                ,"abuse"
-                ,"abuse"
-                ,"academic"
-                ,"accent"
-                ,"accept"
-                ,"acceptable"
-                ,"access"
-                ,"accident"
-                ,"accidental"
-                ,"accidentally"
-                ,"accommodation"
-                ,"accompany"
-                ,"according to"
-                ,"account"
-        };
-        return words;
     }
 
     @Override
@@ -102,6 +70,23 @@ public class DictionaryFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    List<String> getListOfWord(){
+        List<String> list = new ArrayList<>();
+        if (dictionaryDao.getNumberOfRow()==0) {
+            addData();
+        }
+            list = dictionaryDao.getWord();
+        return list;
+    }
+
+    private void addData() {
+        List<Dictionary> dictionaries = new ArrayList<>();
+        for (char c = 'A'; c <= 'Z'; c++) {
+            dictionaries.add(new Dictionary(c+"",c+""+c));
+        }
+        dictionaryDao.add(dictionaries);
     }
 
 //    public void setListener(FragmentListener listener) {
