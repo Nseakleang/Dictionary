@@ -25,7 +25,15 @@ public interface HistoryDao {
     @Query("select word_id from history where id = :id")
     int getWordIdById(int id);
 
-    @Query("select word_id from history order by id asc")
-    List<Integer> getWordId();
+    @Query("select date from history where id = :id")
+    String getDateById(int id);
 
+    @Query("select time from history where id = :id")
+    String getTimeById(int id);
+
+    @Query("select word from dictionary inner join history on dictionary.id = history.word_id order by history.id desc")
+    List<String> getWord();
+
+    @Query("delete from history")
+    void deleteAll();
 }

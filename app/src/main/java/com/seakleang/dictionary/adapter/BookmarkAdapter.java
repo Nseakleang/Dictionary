@@ -6,22 +6,19 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.seakleang.dictionary.MainActivity;
 import com.seakleang.dictionary.R;
-import com.seakleang.dictionary.data.dao.BookmarkDao;
 import com.seakleang.dictionary.data.dao.DictionaryDao;
-import com.seakleang.dictionary.data.database.AppDatabase;
-import com.seakleang.dictionary.entity.Bookmark;
 
 import java.util.List;
 
-public class BookmarkAndHistoryAdapter extends BaseAdapter {
+public class BookmarkAdapter extends BaseAdapter {
     List<String>  wordList;
+    DictionaryDao dictionaryDao;
 
-    public BookmarkAndHistoryAdapter(List<String>  wordList){
+    public BookmarkAdapter(List<String>  wordList, DictionaryDao dictionaryDao){
         this.wordList = wordList;
+        this.dictionaryDao = dictionaryDao;
     }
 
     // count item in array or arrayList
@@ -47,13 +44,22 @@ public class BookmarkAndHistoryAdapter extends BaseAdapter {
 
         View view = null;
         if(convertView == null)
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bookmark_and_history_layout_item, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bookmark_layout_item, parent, false);
         else
             view = convertView;
 
         //create view Object
-        TextView word = view.findViewById(R.id.tvBookmarkAndHistory);
-        ImageView imageDelete = view.findViewById(R.id.ivBookmarkAndHistoryDelete);
+        TextView word = view.findViewById(R.id.tvBookmarkWord);
+        ImageView imageDelete = view.findViewById(R.id.ivBookmarkDelete);
+
+        imageDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dictionaryDao.updateBookmarkByWord(wordList.get(position), false);
+                wordList = dictionaryDao.getBookmarkWord();
+                notifyDataSetChanged();
+            }
+        });
 
         word.setText(wordList.get(position));
 

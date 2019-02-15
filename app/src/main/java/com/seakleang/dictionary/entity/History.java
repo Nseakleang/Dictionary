@@ -19,4 +19,12 @@ public class History {
     @ColumnInfo(name = "word_id")
     public int wordID;
 
+    public String date;
+    public String time;
+
+    public History(int wordID, String date, String time) {
+        this.wordID = wordID;
+        this.date = date;
+        this.time = time;
+    }
 }

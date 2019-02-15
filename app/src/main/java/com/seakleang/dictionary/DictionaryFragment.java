@@ -6,17 +6,20 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.seakleang.dictionary.adapter.DictionaryAdapter;
 import com.seakleang.dictionary.data.dao.DictionaryDao;
+import com.seakleang.dictionary.data.dao.HistoryDao;
 import com.seakleang.dictionary.data.database.AppDatabase;
 import com.seakleang.dictionary.entity.Dictionary;
+import com.seakleang.dictionary.entity.History;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,8 @@ public class DictionaryFragment extends Fragment {
 
     AppDatabase appDatabase;
     DictionaryDao dictionaryDao;
+    HistoryDao historyDao;
+    Time time;
 
     public DictionaryFragment() {
         // Required empty public constructor
@@ -49,14 +54,22 @@ public class DictionaryFragment extends Fragment {
         ListView listView = view.findViewById(R.id.listWord);
         appDatabase = AppDatabase.getFileDatabase(getActivity());
         dictionaryDao = appDatabase.dictionaryDao();
+        historyDao = appDatabase.historyDao();
+        time = new Time();
         DictionaryAdapter adapter = new DictionaryAdapter(getActivity(), getListOfWord());
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                time.setToNow();
+                String t = time.format("%H:%M:%S");
+                String d = time.format("%Y/%h/%d");
+                historyDao.add(new History(position+1, d, t));
+
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
                 intent.putExtra("id", position+1);
+                intent.putExtra("activity", "MainActivity");
                 startActivity(intent);
             }
         });

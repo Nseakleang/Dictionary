@@ -1,20 +1,18 @@
 package com.seakleang.dictionary;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.seakleang.dictionary.data.dao.BookmarkDao;
 import com.seakleang.dictionary.data.dao.DictionaryDao;
 import com.seakleang.dictionary.data.database.AppDatabase;
-import com.seakleang.dictionary.entity.Bookmark;
 
 import java.util.Locale;
 
@@ -29,22 +27,25 @@ public class DetailActivity extends AppCompatActivity {
     private boolean bookmark;
     private AppDatabase appDatabase;
     private DictionaryDao dictionaryDao;
-    private BookmarkDao bookmarkDao;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         appDatabase = AppDatabase.getFileDatabase(this);
         dictionaryDao = appDatabase.dictionaryDao();
-        bookmarkDao = appDatabase.bookmarkDao();
         tvDetail = findViewById(R.id.tvDetail);
 
         id = getIntent().getExtras().getInt("id");
         title = dictionaryDao.getWordById(id);
         detail = dictionaryDao.getDetailById(id);
+        toolbar = findViewById(R.id.tbDetail);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         TTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -56,17 +57,6 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(title);
         tvDetail.setText(detail);
-    }
-
-    private void checkMenuBookmarkIcon() {
-        bookmark = dictionaryDao.getBookmarkById(id);
-        Toast.makeText(this, bookmark+"", Toast.LENGTH_SHORT).show();
-        if (bookmark == false){
-            menu.findItem(R.id.menuBookmark).setIcon(R.drawable.ic_bookmark);
-        }
-        else {
-            menu.findItem(R.id.menuBookmark).setIcon(R.drawable.ic_bookmark_full);
-        }
     }
 
     @Override
@@ -92,12 +82,23 @@ public class DetailActivity extends AppCompatActivity {
         if (itemId == R.id.menuBookmark){
             bookmark = !bookmark;
             dictionaryDao.updateBookmarkById(id, bookmark);
-            if (bookmark == true) {
-                bookmarkDao.add(new Bookmark(id));
-            }else{
-                bookmarkDao.delete(new Bookmark(id));
-            }
             checkMenuBookmarkIcon();
+        }
+        if (itemId == android.R.id.home){
+            Intent intent;
+            if (getIntent().getStringExtra("Activity") == "MainActivity"){
+                intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
+            if (getIntent().getStringExtra("Activity") == "BookmarkActivity"){
+                intent = new Intent(this, BookmarkActivity.class);
+                startActivity(intent);
+            }
+            if (getIntent().getStringExtra("Activity") == "HistoryActivity"){
+                intent = new Intent(this, HistoryActivity.class);
+                startActivity(intent);
+            }
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -109,5 +110,15 @@ public class DetailActivity extends AppCompatActivity {
             TTS.shutdown();
         }
         super.onDestroy();
+    }
+
+    private void checkMenuBookmarkIcon() {
+        bookmark = dictionaryDao.getBookmarkById(id);
+        if (bookmark == false){
+            menu.findItem(R.id.menuBookmark).setIcon(R.drawable.ic_bookmark);
+        }
+        else {
+            menu.findItem(R.id.menuBookmark).setIcon(R.drawable.ic_bookmark_full);
+        }
     }
 }

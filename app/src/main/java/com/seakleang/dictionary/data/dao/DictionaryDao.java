@@ -29,11 +29,17 @@ public interface DictionaryDao {
     @Query("select word from dictionary where id = :id")
     String getWordById(int id);
 
+    @Query("select word from dictionary where bookmark = 1")
+    List<String> getBookmarkWord();
+
     @Query("select detail from dictionary where id = :id")
     String getDetailById(int id);
 
     @Query("select id from dictionary where word like :word")
     int getIdByWord(String word);
+
+    @Query("update dictionary set bookmark = :bookmark where word = :word")
+    void updateBookmarkByWord(String word, boolean bookmark);
 
     @Query("select bookmark from dictionary where id = :id")
     boolean getBookmarkById(int id);
